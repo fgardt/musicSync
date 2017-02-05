@@ -1,5 +1,5 @@
 {
-  "name": "musicSync",
+  "name": "musicsync",
   "version": "1.0.0",
   "description": "Synchronise your youtube music playlist with your pc",
   "main": "main.js",
@@ -16,5 +16,26 @@
   },
   "build": {
     "appId": "braingamer.sync.ytpl"
-  }
+  },
+  "dependencies": {
+    "asar": "^0.13.0",
+    "electron-builder": "^12.3.1",
+    "electron-prebuilt": "^1.4.13",
+    "underscore": "^1.8.3",
+    "youtube-dl": "^1.11.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Brain-Gamer/musicSync.git"
+  },
+  "keywords": [
+    "sync",
+    "youtube",
+    "playlist",
+    "music"
+  ],
+  "bugs": {
+    "url": "https://github.com/Brain-Gamer/musicSync/issues"
+  },
+  "homepage": "https://github.com/Brain-Gamer/musicSync#readme"
 }
