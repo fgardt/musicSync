@@ -1,0 +1,25 @@
+{
+  "settings": {
+    "refresh": 600,
+    "maxDl": 2
+  },
+  "data": {
+    "amount": 0,
+    "lastUuid": "a5a5",
+    "refreshComplete": true,
+    "dir": null,
+    "lastRefresh": 1486310851,
+    "activeDl": 0,
+    "remove": {
+      "total": 0,
+      "complete": 0,
+      "progress": -1
+    },
+    "download": {
+      "total": 0,
+      "complete": 0,
+      "progress": -1
+    }
+  },
+  "playlists": {}
+}
