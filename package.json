@@ -15,12 +15,11 @@
     "electron-prebuilt": "^1.4.12"
   },
   "build": {
-    "appId": "braingamer.sync.ytpl"
+    "appId": "braingamer.sync.ytpl",
+    "asarUnpack": "data.json"
   },
   "dependencies": {
     "asar": "^0.13.0",
-    "electron-builder": "^12.3.1",
-    "electron-prebuilt": "^1.4.13",
     "underscore": "^1.8.3",
     "youtube-dl": "^1.11.1"
   },
