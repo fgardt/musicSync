@@ -1,8 +1,8 @@
-const basic = require("../lib/basic.js");
 const {remote, ipcRenderer} = require("electron");
+const progBar = require("./progBar.js");
 
-basic.init();
 var x = 0;
+syncing = false;
 
 window.onload = function() {
 
@@ -22,9 +22,17 @@ window.onload = function() {
     ipcRenderer.send("toggle-list");
   });
 
+  ipcRenderer.on("syncState", function(e, args) {
+    syncing = args;
+  });
+
+  ipcRenderer.on("prog-main", function(e, prog) {
+    progBar(document.getElementById("prog"), prog);
+  });
+
   setInterval(function () {
     var state = document.getElementById("state");
-    if (!basic.info.data.refreshComplete) {
+    if (syncing) {
       x++;
       state.className = "material-icons icon syncing";
     } else {

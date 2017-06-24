@@ -20,8 +20,10 @@
   },
   "dependencies": {
     "asar": "^0.13.0",
+    "electron": "^1.6.10",
     "underscore": "^1.8.3",
-    "youtube-dl": "^1.11.1"
+    "youtube-api": "^2.0.8",
+    "ytdl-core": "^0.14.2"
   },
   "repository": {
     "type": "git",

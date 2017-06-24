@@ -1,8 +1,5 @@
-const basic       = require("../lib/basic.js");
 const ipcRenderer = require("electron").ipcRenderer;
 const clipboard   = require("electron").remote.clipboard;
-
-basic.init();
 
 window.onload = function() {
 
@@ -10,7 +7,7 @@ window.onload = function() {
     ipcRenderer.send("toggle-list");
   });
 
-  document.getElementById("add").addEventListener("click", function(e) {
+/*  document.getElementById("add").addEventListener("click", function(e) {
     var url = clipboard.readText();
     var id = url.match(/youtube\.com\/(?:watch|playlist).+list=([\w\-]{12,})/);
 
@@ -20,9 +17,9 @@ window.onload = function() {
         ipcRenderer.send("add-list", {"id" : id, "dir" : dir});
       });
     }
-  });
+  });*/
 
-  setInterval(function () {
+  /*setInterval(function () {
     var info      = basic.info;
     var listNode  = document.getElementById("list")
     var childs    = listNode.children;
@@ -70,7 +67,7 @@ window.onload = function() {
       }
     }
 
-  }, 50);
+  }, 50);*/
 };
 
 function remove(btn) {

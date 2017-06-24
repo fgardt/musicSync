@@ -1,7 +1,4 @@
-const basic = require("../lib/basic.js");
 const ipcRenderer = require("electron").ipcRenderer;
-
-basic.init();
 
 window.onload = function() {
 
@@ -10,10 +7,10 @@ window.onload = function() {
   });
 
 
-  document.getElementById("value_refresh").value = basic.info.settings.refresh / 60;
-  document.getElementById("value_maxDl").value = basic.info.settings.maxDl;
+  //document.getElementById("value_refresh").value = basic.info.settings.refresh / 60;
+  //document.getElementById("value_maxDl").value = basic.info.settings.maxDl;
 
-  setInterval(function () {
+  /*setInterval(function () {
     var refresh = Number(document.getElementById("value_refresh").value) * 60;
     var maxDl = Number(document.getElementById("value_maxDl").value);
 
@@ -22,5 +19,5 @@ window.onload = function() {
 
     document.getElementById("value_refresh").value = basic.info.settings.refresh / 60;
     document.getElementById("value_maxDl").value = basic.info.settings.maxDl;
-  }, 100);
+  }, 100);*/
 };

@@ -1,104 +1,98 @@
 const {app, BrowserWindow, globalShortcut, ipcMain, Tray, Menu} = require("electron");
 const path = require("path");
 const url = require("url");
-const basic = require("./lib/basic.js");
+const lib = require("./lib.js");
 
 var iconPath = path.join(__dirname, "./icon.png");
 
-let win;
-let list;
-let settings;
+let mainWin;
+let listWin;
+let settingsWin;
 
 let icon;
 let iconMenu;
+//let settings = lib.getSettings();
 
 function createWindows() {
 
-  win = new BrowserWindow({title: "Music Sync", center: true, frame: false, width: 400, height: 40, resizable: false, show: false, icon: iconPath});
-  list = new BrowserWindow({parent: win, title: "Playlists", center: true, frame: false, width: 400, height: 150, resizable: false, show: false, icon: iconPath});
-  settings = new BrowserWindow({parent: win, title: "Settings", center: true, frame: false, width: 400, height: 150, resizable: false, show: false, icon: iconPath});
+  mainWin = new BrowserWindow({title: "Music Sync", center: true, frame: false, width: 400, height: 57, resizable: false, transparent: true, show: false, icon: iconPath});
+  listWin = new BrowserWindow({parent: mainWin, title: "Playlists", center: true, frame: false, width: 400, height: 150, resizable: false, transparent: true, show: false, icon: iconPath});
+  settingsWin = new BrowserWindow({parent: mainWin, title: "Settings", center: true, frame: false, width: 400, height: 150, resizable: false, transparent: true, show: false, icon: iconPath});
 
-  win.setMenu(null);
-  list.setMenu(null);
-  settings.setMenu(null);
+  mainWin.setMenu(null);
+  listWin.setMenu(null);
+  settingsWin.setMenu(null);
 
-  win.loadURL(url.format({
+  mainWin.loadURL(url.format({
     pathname: path.join(__dirname, "./sites/index.html"),
     protocol: "file:",
     slashes: true
   }));
 
-  list.loadURL(url.format({
+  listWin.loadURL(url.format({
     pathname: path.join(__dirname, "./sites/list.html"),
     protocol: "file:",
     slashes: true
   }));
 
-  settings.loadURL(url.format({
+  settingsWin.loadURL(url.format({
     pathname: path.join(__dirname, "./sites/settings.html"),
     protocol: "file:",
     slashes: true
   }));
 
-  win.on('close', function (event) {
+  mainWin.on('close', function (event) {
     if( !app.isQuiting){
       event.preventDefault()
-      win.hide();
+      mainWin.hide();
     }
     return false;
   });
 
-  list.on('close', function (event) {
+  listWin.on('close', function (event) {
     if( !app.isQuiting){
       event.preventDefault()
-      list.hide();
+      listWin.hide();
     }
     return false;
   });
 
-  settings.on('close', function (event) {
+  settingsWin.on('close', function (event) {
     if( !app.isQuiting){
       event.preventDefault()
-      settings.hide();
+      settingsWin.hide();
     }
     return false;
   });
 
-  win.once("ready-to-show", function() {
-    win.show();
-    start();
+  mainWin.once("ready-to-show", function() {
+    /*settings = lib.getSettings();
+    if ((settings.showOnAutostart && settings.autostart) || !settings.autostart ) mainWin.show();
+    start();*/mainWin.show();
   });
 
   ipcMain.on("toggle-main", function() {
-    if (win.isVisible()) {
-      win.hide();
+    if (mainWin.isVisible()) {
+      mainWin.hide();
     } else {
-      win.show();
+      mainWin.show();
     }
   });
 
   ipcMain.on("toggle-list", function() {
-    if (list.isVisible()) {
-      list.hide();
+    if (listWin.isVisible()) {
+      listWin.hide();
     } else {
-      list.show();
+      listWin.show();
     }
   });
 
   ipcMain.on("toggle-settings", function() {
-    if (settings.isVisible()) {
-      settings.hide();
+    if (settingsWin.isVisible()) {
+      settingsWin.hide();
     } else {
-      settings.show();
+      settingsWin.show();
     }
-  });
-
-  ipcMain.on("add-list", function(event, args) {
-    basic.add(args.id, args.dir);
-  });
-
-  ipcMain.on("remove-list", function(event,args) {
-    basic.remove(args);
   });
 
   ipcMain.on("log", function(event, args) {
@@ -106,80 +100,67 @@ function createWindows() {
   });
 
   globalShortcut.register("CmdOrCtrl+F12", function() {
-    win.webContents.openDevTools({"detach": true});
+    mainWin.webContents.openDevTools({"detach": true});
   });
 
   globalShortcut.register("CmdOrCtrl+R", function() {
-    win.reload();
-    list.reload();
-    settings.reload();
+    mainWin.reload();
+    listWin.reload();
+    settingsWin.reload();
   });
 }
 
 function start() {
-  basic.init();
 
-  setTimeout(function () {
-    var data = basic.info.data;
+  ipcMain.on("add-list", function(event, args) {
+    lib.addList(args.id, args.dir, args.syncTime);
+  });
 
-    data.activeDl = 0;
-    data.refreshComplete = true;
-    data.remove.total = 0;
-    data.remove.complete = 0;
-    data.remove.progress = -1;
-    data.download.total = 0;
-    data.download.complete = 0;
-    data.download.progress = -1;
+  ipcMain.on("remove-list", function(event, args) {
+    lib.removeList(args.id);
+  });
 
-    setInterval(function () {
-      var data = basic.info.data;
 
-      if (data.activeDl < 0) data.activeDl = 0;
-      if (data.activeDl > 0) data.refreshComplete = false;
+  settings  = lib.getSettings();
+  lib.maxDl = settings.maxDl;
 
-      if (!data.refreshComplete) {
-        if (data.download.total != data.download.complete) {
-          if (data.download.progress == -1) data.download.progress = 0;
-          data.download.progress = Math.floor(data.download.complete / data.download.total * 1000) / 10;
-        } else if (data.download.total != 0) {
-          data.download.total = 0;
-          data.download.complete = 0;
-          data.download.progress = -1;
-        }
 
-        if (data.remove.total != data.remove.complete) {
-          if (data.remove.progress == -1) data.remove.progress = 0;
-          data.remove.progress = Math.floor(data.remove.complete / data.remove.total * 1000) / 10;
-        } else if (data.remove.total != 0) {
-          data.remove.total = 0;
-          data.remove.complete = 0;
-          data.remove.progress = -1;
-        }
+  loop = setInterval(function() {
 
-        if ((data.download.progress == -1) && (data.remove.progress == -1)) {
-          data.refreshComplete = true;
-        }
+    lib.checkSynced(function(state) {
+      for (i = 0; i < state.notSynced.length; i++) {
+        lib.sync(state.notSynced[i], function(data) {
+          if (!data.synced) {
+            lib.download(state.notSynced[i], data.dl);
+          }
+        });
       }
+    });
 
-      var time = Math.floor(Date.now() / 1000);
-      if ((time - data.lastRefresh) >= basic.info.settings.refresh) {
-        data.lastRefresh = time;
+    totalProg = Math.round(lib.dlProg.done / lib.dlProg.total * 10000) / 100;
+    keys = Object.keys(lib.dlProg.list);
 
-        if (data.refreshComplete) {
-          basic.refresh();
-        }
-      }
-    }, 250);
-  }, 500);
+    for (i = 0; i < keys.length; i++) {
+      lib.dlProg.list[keys[i]].prog = Math.round(lib.dlProg.list[keys[i]].done / lib.dlProg.list[keys[i]].total * 10000) / 100;
+
+      itemKeys = Object.keys(lib.dlProg.list[keys[i]].items);
+      for (x = 0; x < itemKeys.length; x++) lib.dlProg.list[keys[i]].prog += (lib.dlProg.list[keys[i]].items[itemKeys[x]].prog / lib.dlProg.list[keys[i]].total * 100) / 100;
+
+      totalProg += (lib.dlProg.list[keys[i]].prog / lib.dlProg.total * 100) / 100;
+    }
+    lib.dlProg.prog = totalProg;
+
+  }, 100);
 }
+
 
 app.on("ready", function() {
   createWindows();
   iconMenu = Menu.buildFromTemplate([
-        { label: 'Show', click:  function(){
-            win.show();
+        { label: 'Show', click: function(){
+            mainWin.show();
         } },
-        { label: 'Quit', click:  function(){
+        { label: 'Quit', click: function(){
             app.isQuiting = true;
             app.quit();
         } }
@@ -189,7 +170,7 @@ app.on("ready", function() {
     icon.setToolTip("MusicSync");
     icon.setContextMenu(iconMenu);
     icon.on("click", function() {
-      win.show();
+      mainWin.show();
     });
 });
 
@@ -204,7 +185,7 @@ app.on("will-quit", function() {
 });
 
 app.on("activate", function() {
-  if (win === null) {
+  if (mainWin === null) {
     createWindows();
   }
 });
